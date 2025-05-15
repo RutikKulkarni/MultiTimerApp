@@ -17,27 +17,29 @@ const Timer = ({ timer, onStart, onPause, onReset, onComplete, onDelete }) => {
   };
 
   return (
-    <div className="p-4 bg-white dark:bg-gray-800 rounded-xl shadow-md mb-4 transform transition-all hover:shadow-lg">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-        <div className="mb-4 sm:mb-0">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+    <div className="p-6 bg-gradient-to-br from-white to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-2xl shadow-md mb-4">
+      <div className="flex flex-col sm:flex-row justify-between items-center">
+        <div className="text-center sm:text-left mb-4 sm:mb-0">
+          <h3 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
             {name}
           </h3>
-          <p className="text-gray-600 dark:text-gray-300">
+          <p className="text-sm text-gray-600 dark:text-gray-300">
             Time: {formatTime(remaining)}
           </p>
-          <p className="text-gray-600 dark:text-gray-300">Status: {status}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-300">
+            Status: {status}
+          </p>
           {hasHalfwayAlert && (
-            <p className="text-gray-600 dark:text-gray-300">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
               Halfway Alert: Enabled
             </p>
           )}
         </div>
-        <div className="flex space-x-2">
+        <div className="flex gap-2">
           {status !== "Running" && status !== "Completed" && (
             <button
               onClick={() => onStart(id)}
-              className="p-2 bg-secondary text-white rounded-lg hover:bg-green-700 transition-colors"
+              className="p-3 text-green"
               title="Start"
             >
               <FaPlay />
@@ -46,7 +48,7 @@ const Timer = ({ timer, onStart, onPause, onReset, onComplete, onDelete }) => {
           {status === "Running" && (
             <button
               onClick={() => onPause(id)}
-              className="p-2 bg-accent text-white rounded-lg hover:bg-yellow-600 transition-colors"
+              className="p-3 text-yellow"
               title="Pause"
             >
               <FaPause />
@@ -54,7 +56,7 @@ const Timer = ({ timer, onStart, onPause, onReset, onComplete, onDelete }) => {
           )}
           <button
             onClick={() => onReset(id)}
-            className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+            className="p-3 text-green"
             title="Reset"
           >
             <FaUndo />
@@ -62,15 +64,15 @@ const Timer = ({ timer, onStart, onPause, onReset, onComplete, onDelete }) => {
           {status === "Completed" && (
             <button
               onClick={() => onComplete(id)}
-              className="p-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors"
-              title="Mark Completed"
+              className="p-3 text-green"
+              title="Complete"
             >
               <FaCheck />
             </button>
           )}
           <button
             onClick={handleDelete}
-            className="p-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+            className="p-3 text-red"
             title="Delete"
           >
             <FaTrash />

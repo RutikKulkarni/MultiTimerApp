@@ -23,58 +23,68 @@ const CategoryGroup = ({
   const [isExpanded, setIsExpanded] = useState(true);
 
   return (
-    <div className="bg-gray-100 dark:bg-gray-700 rounded-xl p-6 shadow-md">
+    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm transition-all duration-300 p-4 sm:p-6 w-full">
+      {/* Header */}
       <div className="flex justify-between items-center mb-4">
-        <h2
-          className="text-xl font-bold text-gray-900 dark:text-white cursor-pointer flex items-center"
+        <button
           onClick={() => setIsExpanded(!isExpanded)}
+          className="flex items-center text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 transition-all"
         >
           {isExpanded ? (
-            <FaChevronUp className="mr-2" />
+            <FaChevronUp className="mr-2 text-base" />
           ) : (
-            <FaChevronDown className="mr-2" />
+            <FaChevronDown className="mr-2 text-base" />
           )}
-          {category} ({timers.length})
-        </h2>
-        <div className="flex space-x-2">
+          {category}{" "}
+          <span className="ml-1 text-sm text-gray-500">({timers.length})</span>
+        </button>
+
+        {/* Actions */}
+        <div className="flex items-center space-x-2">
           <button
             onClick={onStartAll}
-            className="p-2 bg-secondary text-white rounded-lg hover:bg-green-700 transition-colors"
+            className="group p-2 rounded-full bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 hover:ring-2 ring-green-400 transition"
             title="Start All"
           >
-            <FaPlay />
+            <FaPlay className="text-sm" />
           </button>
           <button
             onClick={onPauseAll}
-            className="p-2 bg-accent text-white rounded-lg hover:bg-yellow-600 transition-colors"
+            className="group p-2 rounded-full bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300 hover:ring-2 ring-yellow-400 transition"
             title="Pause All"
           >
-            <FaPause />
+            <FaPause className="text-sm" />
           </button>
           <button
             onClick={onResetAll}
-            className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+            className="group p-2 rounded-full bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 hover:ring-2 ring-red-400 transition"
             title="Reset All"
           >
-            <FaUndo />
+            <FaUndo className="text-sm" />
           </button>
         </div>
       </div>
-      {isExpanded && (
-        <div className="space-y-4">
-          {timers.map((timer) => (
-            <Timer
-              key={timer.id}
-              timer={timer}
-              onStart={onStart}
-              onPause={onPause}
-              onReset={onReset}
-              onComplete={onComplete}
-              onDelete={onDelete}
-            />
-          ))}
-        </div>
-      )}
+
+      {/* Timers */}
+      <div
+        className={`grid gap-4 transition-all duration-300 ease-in-out ${
+          isExpanded
+            ? "max-h-[1000px] opacity-100"
+            : "max-h-0 opacity-0 overflow-hidden"
+        }`}
+      >
+        {timers.map((timer) => (
+          <Timer
+            key={timer.id}
+            timer={timer}
+            onStart={onStart}
+            onPause={onPause}
+            onReset={onReset}
+            onComplete={onComplete}
+            onDelete={onDelete}
+          />
+        ))}
+      </div>
     </div>
   );
 };

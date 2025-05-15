@@ -31,29 +31,32 @@ const HistoryScreen = () => {
   };
 
   return (
-    <div className="container mx-auto p-4 sm:p-8 max-w-4xl">
-      <h1 className="text-4xl font-bold mb-8 text-gray-900 dark:text-white flex items-center">
-        <FaHistory className="mr-3 text-primary" /> Timer History
-      </h1>
-      <button
-        onClick={handleExport}
-        className="mb-6 p-3 bg-primary text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
-      >
-        <FaDownload className="mr-2" /> Export History
-      </button>
-      {exportError && <p className="text-red-500 mb-4">{exportError}</p>}
+    <div className="container mx-auto p-6 max-w-3xl">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-3xl font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+          <FaHistory className="text-primary" /> Timer History
+        </h1>
+        <button
+          onClick={handleExport}
+          className="flex items-center gap-2 p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+        >
+          <FaDownload /> Export History
+        </button>
+      </div>
+
+      {exportError && <p className="text-red-500 mt-3">{exportError}</p>}
       {history.length === 0 ? (
-        <p className="text-gray-600 dark:text-gray-300">
-          No completed timers yet. Complete a timer to see it here.
+        <p className="text-gray-600 dark:text-gray-300 mt-4">
+          No completed timers yet.
         </p>
       ) : (
-        <ul className="space-y-4">
+        <ul className="mt-4 space-y-2">
           {history.map((record, index) => (
             <li
               key={index}
-              className="p-4 bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-shadow"
+              className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-shadow"
             >
-              <p className="text-gray-900 dark:text-white">
+              <p className="text-gray-800 dark:text-white">
                 <strong>{record.name}</strong> (Category: {record.category})
                 completed on {new Date(record.completionTime).toLocaleString()}
               </p>

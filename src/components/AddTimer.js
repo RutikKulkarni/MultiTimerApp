@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FaPlus } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 const AddTimer = ({ onAddTimer }) => {
   const [name, setName] = useState("");
@@ -12,82 +12,134 @@ const AddTimer = ({ onAddTimer }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const selectedCategory = category === "custom" ? customCategory : category;
-    if (name && duration > 0 && selectedCategory) {
-      onAddTimer({
-        id: Date.now(),
-        name,
-        duration: parseInt(duration),
-        category: selectedCategory,
-        hasHalfwayAlert,
-      });
-      setName("");
-      setDuration("");
-      setCategory("");
-      setCustomCategory("");
-      setHasHalfwayAlert(false);
+
+    const trimmedName = name.trim();
+    const trimmedCustom = customCategory.trim();
+    const selectedCategory = category === "custom" ? trimmedCustom : category;
+    const parsedDuration = parseInt(duration, 10);
+
+    if (!trimmedName) {
+      toast.error("Timer name is required");
+      return;
     }
+
+    if (!duration || isNaN(parsedDuration) || parsedDuration <= 0) {
+      toast.error("Please enter a valid duration in seconds");
+      return;
+    }
+
+    if (!category) {
+      toast.error("Please select a category");
+      return;
+    }
+
+    if (category === "custom" && !trimmedCustom) {
+      toast.error("Please enter a custom category name");
+      return;
+    }
+
+    onAddTimer({
+      id: Date.now(),
+      name: trimmedName,
+      duration: parsedDuration,
+      category: selectedCategory,
+      hasHalfwayAlert,
+    });
+
+    toast.success("Timer added successfully!");
+
+    setName("");
+    setDuration("");
+    setCategory("");
+    setCustomCategory("");
+    setHasHalfwayAlert(false);
   };
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="mb-8 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg transform transition-all hover:shadow-xl"
+      className="max-w-3xl mx-auto mb-10 p-6 sm:p-8 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-3xl shadow-sm transition-all duration-300"
     >
-      <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white flex items-center">
-        <FaPlus className="mr-2 text-primary" /> Add New Timer
+      <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 dark:text-white mb-6">
+        Create a New Timer
       </h2>
-      <div className="grid gap-4 md:grid-cols-2">
-        <input
-          type="text"
-          placeholder="Timer Name (e.g., Morning Run)"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="p-3 border rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-primary"
-        />
-        <input
-          type="number"
-          placeholder="Duration (seconds)"
-          value={duration}
-          onChange={(e) => setDuration(e.target.value)}
-          className="p-3 border rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-primary"
-        />
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="p-3 border rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-primary"
-        >
-          <option value="">Select Category</option>
-          {defaultCategories.map((cat) => (
-            <option key={cat} value={cat}>
-              {cat}
-            </option>
-          ))}
-          <option value="custom">Custom Category</option>
-        </select>
-        {category === "custom" && (
+
+      <div className="grid gap-5 sm:grid-cols-2">
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-gray-600 dark:text-gray-300">
+            Timer Name
+          </label>
           <input
             type="text"
-            placeholder="Custom Category"
-            value={customCategory}
-            onChange={(e) => setCustomCategory(e.target.value)}
-            className="p-3 border rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-primary"
+            placeholder="e.g. Morning Run"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 px-4 py-2.5 text-sm text-gray-800 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-gray-600 dark:text-gray-300">
+            Duration (in seconds)
+          </label>
+          <input
+            type="number"
+            placeholder="e.g. 300"
+            value={duration}
+            onChange={(e) => setDuration(e.target.value)}
+            className="rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 px-4 py-2.5 text-sm text-gray-800 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-gray-600 dark:text-gray-300">
+            Category
+          </label>
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 px-4 py-2.5 text-sm text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Select Category</option>
+            {defaultCategories.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+            <option value="custom">Custom Category</option>
+          </select>
+        </div>
+
+        {category === "custom" && (
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium text-gray-600 dark:text-gray-300">
+              Custom Category
+            </label>
+            <input
+              type="text"
+              placeholder="e.g. Meditation"
+              value={customCategory}
+              onChange={(e) => setCustomCategory(e.target.value)}
+              className="rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 px-4 py-2.5 text-sm text-gray-800 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
         )}
-        <label className="flex items-center col-span-2">
+
+        <label className="flex items-center gap-3 col-span-full mt-2">
           <input
             type="checkbox"
             checked={hasHalfwayAlert}
             onChange={(e) => setHasHalfwayAlert(e.target.checked)}
-            className="mr-2 h-5 w-5 text-primary"
+            className="h-4 w-4 accent-blue-600 dark:accent-blue-400"
           />
-          <span className="text-gray-900 dark:text-white">
+          <span className="text-sm text-gray-700 dark:text-gray-300">
             Enable Halfway Alert
           </span>
         </label>
+
         <button
           type="submit"
-          className="p-3 bg-primary text-white rounded-lg hover:bg-blue-700 transition-colors col-span-2"
+          className="w-full sm:w-auto col-span-full mt-4 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-medium py-2.5 px-5 rounded-lg transition"
         >
           Add Timer
         </button>

@@ -5,9 +5,16 @@ import {
   getHistory,
   saveHistory,
 } from "../utils/storage";
+import { toast } from "react-hot-toast";
 
 const useTimerStorage = () => {
-  const [timers, setTimers] = useState(getTimers());
+  const [timers, setTimers] = useState(() => {
+    const loaded = getTimers();
+    return loaded.map((timer) => ({
+      ...timer,
+      completionNotified: timer.completionNotified || false,
+    }));
+  });
   const [history, setHistory] = useState(getHistory());
 
   useEffect(() => {
@@ -16,8 +23,27 @@ const useTimerStorage = () => {
         const updatedTimers = prevTimers.map((timer) => {
           if (timer.status === "Running" && timer.remaining > 0) {
             const newRemaining = timer.remaining - 1;
-            if (newRemaining <= 0) {
-              return { ...timer, remaining: 0, status: "Completed" };
+
+            if (newRemaining <= 0 && !timer.completionNotified) {
+              toast.success(`Timer "${timer.name}" completed!`);
+              return {
+                ...timer,
+                remaining: 0,
+                status: "Completed",
+                completionNotified: true,
+              };
+            }
+
+            if (
+              timer.hasHalfwayAlert &&
+              newRemaining === Math.floor(timer.duration / 2)
+            ) {
+              toast(`⏳ Halfway through "${timer.name}"!`, {
+                style: {
+                  background: "#333",
+                  color: "#fff",
+                },
+              });
             }
             return { ...timer, remaining: newRemaining };
           }
@@ -36,27 +62,28 @@ const useTimerStorage = () => {
       ...timer,
       remaining: timer.duration,
       status: "Paused",
+      completionNotified: false,
     };
     setTimers((prev) => {
       const updated = [...prev, newTimer];
       saveTimers(updated);
       return updated;
     });
+    toast.success(`Added timer "${timer.name}"`);
   };
 
-  const startTimer = (id, onAlert) => {
+  const startTimer = (id) => {
     setTimers((prev) => {
       const updated = prev.map((timer) => {
         if (timer.id === id && timer.status !== "Completed") {
           if (timer.remaining <= 0) {
-            onAlert(`Timer "${timer.name}" has completed!`);
-            return { ...timer, status: "Completed", remaining: 0 };
-          }
-          if (
-            timer.hasHalfwayAlert &&
-            timer.remaining === Math.floor(timer.duration / 2)
-          ) {
-            onAlert(`Halfway alert for "${timer.name}"!`);
+            toast.error(`Timer "${timer.name}" already completed!`);
+            return {
+              ...timer,
+              status: "Completed",
+              remaining: 0,
+              completionNotified: true,
+            };
           }
           return { ...timer, status: "Running" };
         }
@@ -83,15 +110,21 @@ const useTimerStorage = () => {
     setTimers((prev) => {
       const updated = prev.map((timer) =>
         timer.id === id
-          ? { ...timer, remaining: timer.duration, status: "Paused" }
+          ? {
+              ...timer,
+              remaining: timer.duration,
+              status: "Paused",
+              completionNotified: false,
+            }
           : timer
       );
       saveTimers(updated);
+      toast.success(`Timer reset`);
       return updated;
     });
   };
 
-  const completeTimer = (id, onAlert) => {
+  const completeTimer = (id) => {
     setTimers((prev) => {
       const timer = prev.find((t) => t.id === id);
       if (timer) {
@@ -107,9 +140,7 @@ const useTimerStorage = () => {
           saveHistory(updatedHistory);
           return updatedHistory;
         });
-        onAlert(
-          `Timer "${timer.name}" marked as completed and added to history.`
-        );
+        toast.success(`Completed "${timer.name}" & added to history`);
       }
       const updated = prev.filter((t) => t.id !== id);
       saveTimers(updated);
@@ -117,13 +148,13 @@ const useTimerStorage = () => {
     });
   };
 
-  const deleteTimer = (id, onAlert) => {
+  const deleteTimer = (id) => {
     setTimers((prev) => {
       const timer = prev.find((t) => t.id === id);
       const updated = prev.filter((t) => t.id !== id);
       saveTimers(updated);
-      if (timer && onAlert) {
-        onAlert(`Timer "${timer.name}" deleted.`);
+      if (timer) {
+        toast.success(`"${timer.name}" Timer deleted.`);
       }
       return updated;
     });
@@ -139,6 +170,7 @@ const useTimerStorage = () => {
           : timer
       );
       saveTimers(updated);
+      toast.success(`Started all timers in "${category}"`);
       return updated;
     });
   };
@@ -151,6 +183,7 @@ const useTimerStorage = () => {
           : timer
       );
       saveTimers(updated);
+      toast.success(`Paused all timers in "${category}"`);
       return updated;
     });
   };
@@ -159,10 +192,16 @@ const useTimerStorage = () => {
     setTimers((prev) => {
       const updated = prev.map((timer) =>
         timer.category === category
-          ? { ...timer, remaining: timer.duration, status: "Paused" }
+          ? {
+              ...timer,
+              remaining: timer.duration,
+              status: "Paused",
+              completionNotified: false,
+            }
           : timer
       );
       saveTimers(updated);
+      toast.success(`Reset all timers in "${category}"`);
       return updated;
     });
   };
