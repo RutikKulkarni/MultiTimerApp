@@ -2,6 +2,8 @@
 
 A React web application to create, manage, and interact with multiple customizable timers.
 
+- Live URL: https://multi-timer-app-five.vercel.app/
+
 ## Features
 
 - Create timers with name, duration, category, and halfway alert.
